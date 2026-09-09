@@ -253,3 +253,11 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+
+# Scheduled background jobs (Phase 10)
+scheduler_events = {
+	"daily": [
+		"order_management.tasks.daily_order_summary",
+	],
+}

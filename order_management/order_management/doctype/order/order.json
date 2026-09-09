@@ -1,0 +1,30 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "ORD-.#####",
+ "creation": "2026-09-09 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["customer", "order_date", "status", "items_section", "items", "totals_section", "total_amount"],
+ "fields": [
+  {"fieldname": "customer", "fieldtype": "Link", "options": "Customer", "in_list_view": 1, "label": "Customer", "reqd": 1},
+  {"fieldname": "order_date", "fieldtype": "Date", "label": "Order Date", "default": "Today", "in_list_view": 1},
+  {"fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "Draft\nConfirmed\nProcessing\nShipped\nCompleted", "default": "Draft", "in_list_view": 1},
+  {"fieldname": "items_section", "fieldtype": "Section Break", "label": "Items"},
+  {"fieldname": "items", "fieldtype": "Table", "options": "Order Item", "label": "Items", "reqd": 1},
+  {"fieldname": "totals_section", "fieldtype": "Section Break"},
+  {"fieldname": "total_amount", "fieldtype": "Currency", "label": "Total Amount", "read_only": 1, "in_list_view": 1}
+ ],
+ "links": [],
+ "modified": "2026-09-09 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Order Management",
+ "name": "Order",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "email": 1, "print": 1, "share": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

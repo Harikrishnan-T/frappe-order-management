@@ -101,3 +101,125 @@ def create_workflow():
 		).insert(ignore_permissions=True)
 	frappe.db.commit()
 	return "workflow created"
+
+
+# ---------------------------------------------------------------------------
+# Phase 11 — Notification ("Order X has been shipped")
+# ---------------------------------------------------------------------------
+def create_notification():
+	if frappe.db.exists("Notification", "Order Shipped"):
+		return "notification exists"
+	frappe.get_doc(
+		{
+			"doctype": "Notification",
+			"name": "Order Shipped",
+			"subject": "Order {{ doc.name }} has been shipped",
+			"document_type": "Order",
+			"channel": "System Notification",
+			"event": "Value Change",
+			"value_changed": "status",
+			"condition": "doc.status == 'Shipped'",
+			"message": "Order {{ doc.name }} for {{ doc.customer }} has been marked as Shipped.",
+			"enabled": 1,
+			"is_standard": 0,
+			"recipients": [{"receiver_by_role": "Manager"}],
+		}
+	).insert(ignore_permissions=True)
+	frappe.db.commit()
+	return "notification created"
+
+
+# ---------------------------------------------------------------------------
+# Phase 12 — Report (Orders by Status)
+# ---------------------------------------------------------------------------
+def create_report():
+	if frappe.db.exists("Report", "Orders by Status"):
+		return "report exists"
+	frappe.get_doc(
+		{
+			"doctype": "Report",
+			"report_name": "Orders by Status",
+			"ref_doctype": "Order",
+			"report_type": "Query Report",
+			"is_standard": "No",
+			"query": (
+				"SELECT status AS `Status:Data:150`, "
+				"COUNT(name) AS `Total Orders:Int:130`, "
+				"SUM(total_amount) AS `Order Value:Currency:160` "
+				"FROM `tabOrder` GROUP BY status"
+			),
+			"roles": [{"role": "Manager"}, {"role": "Sales User"}],
+		}
+	).insert(ignore_permissions=True)
+	frappe.db.commit()
+	return "report created"
+
+
+# ---------------------------------------------------------------------------
+# Phase 13 — Dashboard (number cards)
+# ---------------------------------------------------------------------------
+def create_dashboard():
+	def card(label, function, based_on=None, status=None):
+		if frappe.db.exists("Number Card", label):
+			return
+		filters = [["Order", "status", "=", status, False]] if status else []
+		doc = {
+			"doctype": "Number Card",
+			"name": label,
+			"label": label,
+			"type": "Document Type",
+			"document_type": "Order",
+			"function": function,
+			"filters_json": frappe.as_json(filters),
+			"is_standard": 0,
+		}
+		if based_on:
+			doc["aggregate_function_based_on"] = based_on
+		frappe.get_doc(doc).insert(ignore_permissions=True)
+
+	card("Total Orders", "Count")
+	card("Draft Orders", "Count", status="Draft")
+	card("Processing Orders", "Count", status="Processing")
+	card("Shipped Orders", "Count", status="Shipped")
+	card("Completed Orders", "Count", status="Completed")
+	card("Total Order Value", "Sum", based_on="total_amount")
+
+	# A Dashboard needs at least one chart, so add a "by status" bar chart.
+	if not frappe.db.exists("Dashboard Chart", "Orders by Status Chart"):
+		frappe.get_doc(
+			{
+				"doctype": "Dashboard Chart",
+				"chart_name": "Orders by Status Chart",
+				"chart_type": "Group By",
+				"document_type": "Order",
+				"group_by_type": "Count",
+				"group_by_based_on": "status",
+				"type": "Bar",
+				"filters_json": "[]",
+				"is_standard": 0,
+			}
+		).insert(ignore_permissions=True)
+
+	if not frappe.db.exists("Dashboard", "Order Management"):
+		frappe.get_doc(
+			{
+				"doctype": "Dashboard",
+				"dashboard_name": "Order Management",
+				"is_standard": 0,
+				"charts": [{"chart": "Orders by Status Chart", "width": "Full"}],
+				"cards": [
+					{"card": c}
+					for c in [
+						"Total Orders",
+						"Draft Orders",
+						"Processing Orders",
+						"Shipped Orders",
+						"Completed Orders",
+						"Total Order Value",
+					]
+				],
+			}
+		).insert(ignore_permissions=True)
+	frappe.db.commit()
+	return "dashboard created"
+

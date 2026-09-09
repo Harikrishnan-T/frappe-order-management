@@ -223,3 +223,46 @@ def create_dashboard():
 	frappe.db.commit()
 	return "dashboard created"
 
+
+
+# ---------------------------------------------------------------------------
+# Sample/dummy data so the app has something to show
+# ---------------------------------------------------------------------------
+def create_sample_data():
+	for c in ["ABC Company", "XYZ Traders"]:
+		if not frappe.db.exists("Customer", {"customer_name": c}):
+			frappe.get_doc({"doctype": "Customer", "customer_name": c}).insert(
+				ignore_permissions=True
+			)
+
+	products = [
+		("Laptop", "LAP-001", 50000, 10),
+		("Mouse", "MOU-001", 500, 100),
+		("Keyboard", "KEY-001", 1500, 50),
+	]
+	for name, sku, price, qty in products:
+		if not frappe.db.exists("Product", name):
+			frappe.get_doc(
+				{
+					"doctype": "Product",
+					"product_name": name,
+					"sku": sku,
+					"price": price,
+					"stock_quantity": qty,
+				}
+			).insert(ignore_permissions=True)
+
+	if not frappe.db.count("Order"):
+		frappe.get_doc(
+			{
+				"doctype": "Order",
+				"customer": "ABC Company",
+				"items": [
+					{"product": "Laptop", "quantity": 2},
+					{"product": "Mouse", "quantity": 3},
+				],
+			}
+		).insert(ignore_permissions=True)
+	frappe.db.commit()
+	return "sample data created"
+

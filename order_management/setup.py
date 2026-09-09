@@ -266,3 +266,43 @@ def create_sample_data():
 	frappe.db.commit()
 	return "sample data created"
 
+
+
+# ---------------------------------------------------------------------------
+# Workspace — a landing page/menu for the app in the left sidebar
+# ---------------------------------------------------------------------------
+def create_workspace():
+	import json
+
+	if frappe.db.exists("Workspace", "Order Management"):
+		return "workspace exists"
+
+	shortcuts = [
+		("Customers", "DocType", "Customer"),
+		("Products", "DocType", "Product"),
+		("Orders", "DocType", "Order"),
+		("Shipments", "DocType", "Shipment"),
+		("Dashboard", "Dashboard", "Order Management"),
+	]
+	content = [{"id": "hdr", "type": "header", "data": {"text": "<span class=\"h4\">Order Management</span>", "col": 12}}]
+	for i, (label, _t, _l) in enumerate(shortcuts):
+		content.append({"id": f"sc{i}", "type": "shortcut", "data": {"shortcut_name": label, "col": 3}})
+
+	frappe.get_doc(
+		{
+			"doctype": "Workspace",
+			"name": "Order Management",
+			"label": "Order Management",
+			"title": "Order Management",
+			"module": "Order Management",
+			"public": 1,
+			"icon": "sell",
+			"content": json.dumps(content),
+			"shortcuts": [
+				{"label": label, "type": t, "link_to": link} for label, t, link in shortcuts
+			],
+		}
+	).insert(ignore_permissions=True)
+	frappe.db.commit()
+	return "workspace created"
+

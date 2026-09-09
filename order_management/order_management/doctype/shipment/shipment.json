@@ -1,0 +1,28 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SHIP-.#####",
+ "creation": "2026-09-09 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["order", "customer", "shipment_date", "tracking_number", "shipment_status"],
+ "fields": [
+  {"fieldname": "order", "fieldtype": "Link", "options": "Order", "in_list_view": 1, "label": "Order", "reqd": 1},
+  {"fieldname": "customer", "fieldtype": "Link", "options": "Customer", "label": "Customer", "read_only": 1, "fetch_from": "order.customer", "in_list_view": 1},
+  {"fieldname": "shipment_date", "fieldtype": "Date", "label": "Shipment Date", "default": "Today", "in_list_view": 1},
+  {"fieldname": "tracking_number", "fieldtype": "Data", "label": "Tracking Number", "in_list_view": 1},
+  {"fieldname": "shipment_status", "fieldtype": "Select", "label": "Shipment Status", "options": "Pending\nIn Transit\nDelivered", "default": "Pending", "in_list_view": 1}
+ ],
+ "links": [],
+ "modified": "2026-09-09 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Order Management",
+ "name": "Shipment",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1, "email": 1, "print": 1, "share": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
